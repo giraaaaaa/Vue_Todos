@@ -1,4 +1,5 @@
 <template>
+<div>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <router-link class="navbar-brand" to="/">Gira Coder</router-link>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -8,9 +9,11 @@
         </li>
       </ul>
     </div>
-</nav>
+  </nav>
 
   <router-view/>
+
+</div>
     
 </template>
 
