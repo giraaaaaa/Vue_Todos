@@ -1,8 +1,14 @@
 <template>
-<router-view/>
-    <div class="container">
-      <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
+    <div>
+        <div class="d-flex justify-content-between mb-3">
       <h1>투두 리스트!</h1>
+    <button 
+      @click="moveToCreatePage"
+      class="btn btn-primary" 
+      type="">Create Todo</button>
+  </div>
+
+      <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <h4>count: {{count}}</h4>
   <h4>doubleCount: {{doubleCount}}</h4>
   <button @click="count++">Add on</button>
@@ -15,7 +21,7 @@
           placeholder="Search">
       </div>
       <hr>
-      <TodoSimpleForm @add-todo="addTodo"/>      
+      <!-- <TodoSimpleForm @add-todo="addTodo"/>       -->
       <div style="color: red">{{error}}</div>
       <div v-if="!todos.length">추가된 Todo가 없습니다.</div>
       <TodoList 
@@ -38,22 +44,29 @@
         <li style="cursor: pointer" v-if="numberOfPages !== currentPage" class="page-item" @click="getTodos(currentPage +1)"><a class="page-link" href="#">Next</a></li>
       </ul>
     </nav>
+    <Toast /> 
+    <div class="container">
+        <router-view/>
+    </div>
   </div>
-    
 </template>
 
 <script>
 import { ref, computed, watch } from 'vue';
-import TodoSimpleForm from '@/components/TodoSimpleForm.vue';
+// import TodoSimpleForm from '@/components/TodoSimpleForm.vue';
 import TodoList from '@/components/TodoList.vue';
 import axios from 'axios'
+import Toast from '@/components/Toast.vue'
+import { useRouter } from 'vue-router'
+import {useToast} from '@/composables/toast'
 export default {
   components: {
-    TodoSimpleForm,
+    // TodoSimpleForm,
     TodoList,
   },
   setup() {
     // const name = 'gira';
+    const router = useRouter();
     const error = ref('');
     const todoStyle = {
       textDecoration: 'line-through',
@@ -64,11 +77,36 @@ export default {
     const currentPage = ref(1);
     const toggle = ref(false)
 
+    // const toastMessage = ref('');
+    // const toastAlert = ref('');
+    // const showToast = ref(false)
+    // const toastTiemout = ref(null)
+    // const triggerToast = (message, type = 'success') => {
+    //       showToast.value = true;
+    //       toastAlert.value = type
+    //       toastMessage.value = message;
+
+    //       toastTiemout.value = setTimeout(() => {
+    //         toastMessage.value = '';
+    //         toastAlert.value = ''
+    //         showToast.value = false;
+    //       }, 3000)
+    // }
+    const {        
+        toastMessage,
+        toastAlert,
+        showToast,
+        triggerToast,
+    } = useToast();
     const numberOfPages = computed(() => {
       return Math.ceil(numberOfTodos.value / limit);
     })
     const searchText = ref('');
-
+    const moveToCreatePage = () => {
+        router.push({
+          name: "TodoCreate",
+        })
+    }
     const getTodos = async (page = currentPage.value) => {
       currentPage.value = page;
       try {
@@ -80,6 +118,7 @@ export default {
         todos.value = res.data;
       } catch (err) {
         console.log(err)
+        triggerToast('Something went wrong!', 'danger');
         error.value = "SOMTHING WORNG!!!@#!@#!!!"
       }
 
@@ -100,6 +139,7 @@ export default {
           getTodos(1);
           // todos.value.splice(index, 1)
       } catch (err) {
+          triggerToast('Something went wrong!', 'danger');
           console.log(err)
       }
       
@@ -120,6 +160,8 @@ export default {
         // todos.value.push(res.data)
       } catch (err) {
         console.log(err);
+        triggerToast('Something went wrong!', 'danger');
+
         error.value = "something Wrong Happen Now!"
       }
       // .then(res => {
@@ -130,16 +172,18 @@ export default {
       //   error.value = "something Wrong Happen Now!"
       // });
     }
-    const toggleTodo = async (index) => {
+    const toggleTodo = async (index, checked) => {
       error.value = '';
       const id = todos.value[index].id;
       try {
           await axios.patch('http://localhost:3000/todos/' + id, {
-            completed: !todos.value[index].completed
+            completed: checked
           })
-          todos.value[index].completed = !todos.value[index].completed
+          todos.value[index].completed = checked
       } catch (error) {
           console.log(error);
+          triggerToast('Something went wrong!', 'danger');
+
           error.value = "something Wrong Happen Now!"
       }
     }
@@ -162,6 +206,7 @@ export default {
           getTodos(1);
       },1000)
     })
+
     // const filteredTodos = computed(() =>{
     //   if (searchText.value) {
     //     return todos.value.filter(todo =>{
@@ -184,10 +229,15 @@ export default {
       searchText,
       searchTodo,
       // filteredTodos,
+      moveToCreatePage,
       error,
       numberOfPages,
       currentPage,
       getTodos,
+      Toast,
+      toastMessage,
+      toastAlert,
+      showToast
     }
   }
 }
