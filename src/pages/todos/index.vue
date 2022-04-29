@@ -131,9 +131,9 @@ export default {
     const onToggle = () => {
       toggle.value = !toggle.value;
     }
-    const deleteTodo = (index) =>{
+    const deleteTodo = (id) =>{
       error.value = '';
-      const id = todos.value[index].id;
+      // const id = todos.value[index].id;
       try {
           axios.delete('http://localhost:3000/todos/' + id)
           getTodos(1);

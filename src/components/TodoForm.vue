@@ -7,14 +7,25 @@
     @submit.prevent="onSave">
     <div class="row">
       <div class="col-6">
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label for="">Subject</label>
           <input 
             v-model="todo.subject" 
             type="text" 
             class="form-control">
         </div>
-        <div v-if="subjectError" class="text-red">{{subjectError}}</div>
+        <div v-if="subjectError" class="text-red">{{subjectError}}</div> -->
+        <Input 
+            label="Subject" 
+            v-model:subejct="todo.subject"
+            :error="subjectError" 
+        />
+      </div>
+      <div class="col-6">
+        <div class="form-group">
+          <label for="">Status</label>
+          <Text> 123</Text>
+        </div>
       </div>
       <div  class="col-12">
         <div class="form-group">
@@ -33,23 +44,27 @@
       class="btn btn-outline-dark ms-2"
       @click="moveToTodoListPage">취소</button>
   </form>
-  <Toast 
-    v-if="showToast"
-    :message="toastMessage"
-    :type="toastAlert" />
+  <transition name="fade">
+    <Toast 
+        v-if="showToast"
+        :message="toastMessage"
+        :type="toastAlert" />
+  </transition>
   </div>
 </template>
 <script>
 import {useRoute, useRouter} from 'vue-router'
 import axios from 'axios'
-import { ref, computed } from '@vue/reactivity'
+import { ref, computed, onUpdated } from 'vue'
 import _ from 'lodash'
 import Toast from '@/components/Toast.vue'
+import Input from '@/components/Input.vue'
 import {useToast} from '@/composables/toast'
 
 export default {
     components: {
-      Toast
+      Toast,
+      Input
     },
     props: {
         editing: {
@@ -70,7 +85,9 @@ export default {
         const route = useRoute();
         const todoId = route.params.id;
         
-        
+        onUpdated(() => {
+            console.log(todo.value.subject)
+        })
         // const showToast = ref(false)
         // const toastMessage = ref('');
         // const toastAlert = ref('');
@@ -98,7 +115,6 @@ export default {
         const todoUpdated =  computed(() => {
           return !_.isEqual(todo.value, originalTodo.value)
         })
-
         const getTodo = async () => {
             loading.value = true;
           try {
@@ -177,5 +193,21 @@ export default {
 <style scoped>
     .text-red {
         color: red;
+    }
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: all 0.5s ease;
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    .fade-enter-to,
+    .fade-leave-from {
+        opacity: 1;
+        transform: translateY(0px);
     }
 </style>

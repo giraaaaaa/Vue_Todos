@@ -1,38 +1,51 @@
 <template>
-    <div>
-    <div
+    <!-- <div
         v-for="(todo, index) in todos"
         :key="todo.id"
-        class="card mt-2">
+        class="card mt-2"> -->
+        <List :items="todos">
+            <template #default="{ item, index }">
             <div 
                 class="card-body p-2 d-flex align-items-center"
-                @click="moveToPage(todo.id)">
-            <div class="form-check flex-grow-1">
-                <input 
-                    class="form-check-input" 
-                    type="checkbox" 
-                    style="cursor: pointer"
-                    :checked="todo.completed"
-                    @change="toggleTodo(index, $event)"
-                    @click.stop
-                >
-                <!-- :style="todo.completed ? todoStyle : {}" -->
-                <label 
-                class="form-check-label"
-                :class="{ todo: todo.completed}">{{todo.subject}}</label>
-            </div>
-            <div>
-                <button class="btn btn-danger btn-sm" @click.stop="deleteTodo(index)">삭제</button>
-            </div>
+                style="cursor: pointer"
+                @click="moveToPage(item.id)">
+                <div class="flex-grow-1">
+                    <input 
+                        class="ms-2 me-2"
+                        type="checkbox" 
+                        style="cursor: pointer"
+                        :checked="item.completed"
+                        @change="toggleTodo(index, $event)"
+                        @click.stop
+                    >
+                    <!-- :style="todo.completed ? todoStyle : {}" -->
+                    <span 
+                    :class="{ todo: item.completed}">{{item.subject}}</span>
+                </div>
+                <div>
+                    <button class="btn btn-danger btn-sm" @click.stop="openModal(item.id)">삭제</button>
+                </div>
             <!-- {{todo.subject}} -->
             </div>
-        </div>
-    </div>
+        </template>
+        <!-- </div> -->
+        </List>
+        <teleport to="#modal">
+            <Modal v-if="showModal" @close="closeModal" @delete="deleteTodo" />
+        </teleport>
 </template>
 
 <script>
 import { useRouter } from 'vue-router'
+// import Modal from '@/components/Modal.vue'
+import Modal from '@/components/DeleteModal.vue'
+import List from './List.vue'
+import { ref } from 'vue';
 export default {
+    components: {
+        Modal,
+        List
+    },
     props: {
         todos: {
             type: Array,
@@ -42,11 +55,23 @@ export default {
     emits: ['toggle-todo', 'delete-todo'],
     setup(props, {emit}) {
         const router = useRouter();
+        const showModal = ref(false)
+        const todoDeleteId = ref(null)
         const toggleTodo = (index, event) => {
             emit('toggle-todo', index, event.target.checked);
         }
-        const deleteTodo = (index) => {
-            emit('delete-todo', index);
+        const deleteTodo = () => {
+            emit('delete-todo', todoDeleteId.value);
+            showModal.value = false;
+            todoDeleteId.value = null;
+        }
+        const openModal = (id) => {
+            todoDeleteId.value = id;
+            showModal.value = true;
+        }
+        const closeModal = () => {
+            todoDeleteId.value = null;
+            showModal.value = false;
         }
         const moveToPage = (todoId) => {
             console.log(todoId)
@@ -61,6 +86,9 @@ export default {
             toggleTodo,
             deleteTodo,
             moveToPage,
+            showModal,
+            openModal,
+            closeModal,
         }
     }
 }
