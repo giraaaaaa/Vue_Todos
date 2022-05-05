@@ -17,7 +17,7 @@
         <div v-if="subjectError" class="text-red">{{subjectError}}</div> -->
         <Input 
             label="Subject" 
-            v-model:subejct="todo.subject"
+            v-model:subject="todo.subject"
             :error="subjectError" 
         />
       </div>
@@ -159,7 +159,7 @@ export default {
                     todo.value.subject = '';
                     todo.value.body = '';
                 }
-            const message = props.editing ? '수정' : '저장' + '이 완료되었습니다.'
+            const message = (props.editing ? '수정' : '저장') + '이 완료되었습니다.'
              
             triggerToast(message);
 

@@ -4,8 +4,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel"><slot name="title"></slot></h5>
-        <button type="button" class="close">
-          <span @click="onClose">&times;</span>
+        <button @click="onClose" type="button" class="btn-close">
         </button>
       </div>
       <div class="modal-body">
